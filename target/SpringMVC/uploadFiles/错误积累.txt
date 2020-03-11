@@ -1,0 +1,4 @@
+1.
+	400：Bad Request
+	1.1.请求方法的参数上，设置了 @RequestParam的required=true；
+	1.2.在请求参数对象user的左边加了： @Valid User user

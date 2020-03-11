@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="cn.lhy.springMVC.entity.User" table="user" schema="springmvc">
+        <id name="id">
+            <column name="id" />
+            <generator class="native" />
+        </id>
+        <property name="username">
+            <column name="username" sql-type="varchar(255)"/>
+        </property>
+        <property name="password">
+            <column name="password" sql-type="varchar(255)" not-null="false"/>
+        </property>
+        <property name="age">
+            <column name="age" sql-type="int(10)" not-null="false"/>
+        </property>
+        <property name="height" type="java.lang.Double">
+            <column name="height" />
+        </property>
+        <property name="birthday" type="java.util.Date">
+            <column name="birthday" />
+        </property>
+        <property name="email" type="java.lang.String">
+            <column name="email" />
+        </property>
+        <many-to-one name="business" lazy="false" class="cn.lhy.springMVC.entity.Business" fetch="join">
+            <column name="business_id" />
+        </many-to-one>
+    </class>
+</hibernate-mapping>

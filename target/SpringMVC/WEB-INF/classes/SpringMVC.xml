@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    <!--开启注解扫描-->
+    <!--如果不这样配置，删除用户和修改用户的操作都不能成功，只能进行增加和查询操作-->
+    <context:component-scan base-package="cn.lhy.springMVC" use-default-filters="false">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:include-filter type="annotation"
+                                expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+    </context:component-scan>
+    <!--配置视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--加了这个配置，可以启用@RequestMapping注解的name属性的功能-->
+    <bean id="requestMappingHandlerMapping"
+          class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping"/>
+    <!--加了这个配置，可支持国际化-->
+    <!--id必须命名为：messageSource，否则会导致国际化语言设置失败-->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <property name="basename" value="i18n"/>
+    </bean>
+    <!--通过配置，直接实现转发，这样，就不用专门在类里面写一个空方法来实现转发-->
+    <mvc:view-controller path="/viewController/usual1" view-name="view/view"/>
+    <!--还可以通过mvc:view-controller标签实现请求之间的重定向-->
+    <mvc:view-controller path="/viewController/usual2" view-name="redirect:/viewController/usual1"/>
+
+    <!--下面的配置，通过bean的名字（id值）来注入，解析视图-->
+    <!--这样，就可以通过返回字符串的形式，进行excel的下载-->
+    <bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+        <!--比默认的大就行，比Integer的最大值大就行-->
+        <property name="order" value="100"/>
+    </bean>
+
+    <!--配置自定义的转换器-->
+    <bean id="formattingConversionServiceFactoryBean"
+          class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <!--这里配置了自定义的转换器之后，还要在annotation-driven标签里面配置conversion-service属性-->
+                <bean class="cn.lhy.springMVC.converter.StringToUserConverter"/>
+            </set>
+        </property>
+    </bean>
+
+    <!--配置了mvc:view-controller之后，正常的到Controller里面的请求，就不会被执行了，必须要做以下配置-->
+    <!--以下配置，在100%的项目里面都要用-->
+    <!--conversion-service是配置自定义的转换器-->
+    <mvc:annotation-driven conversion-service="formattingConversionServiceFactoryBean"/>
+
+    <!--加了一下配置，就不会让SpringMVC解析静态资源：js，css，图片-->
+    <mvc:default-servlet-handler/>
+
+    <!--配置文件上传的相关的信息-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!-- 上传文件大小上限为10MB，单位为字节 -->
+        <property name="maxUploadSize">
+            <value>10485760</value>
+        </property>
+        <!-- 请求的编码格式，必须和jSP的pageEncoding属性一致，默认为ISO-8859-1 -->
+        <property name="defaultEncoding">
+            <value>UTF-8</value>
+        </property>
+    </bean>
+    <!--以下配置方法，会拦截所有的路-->
+    <!--<mvc:interceptors>-->
+    <!--<bean class="cn.lhy.springMVC.interceptor.Interceptor1"></bean>-->
+    <!--<bean class="cn.lhy.springMVC.interceptor.Interceptor2"></bean>-->
+    <!--</mvc:interceptors>-->
+    <mvc:interceptors>
+        <!--配置第一个拦截器-->
+        <mvc:interceptor>
+            <!--path="/**表示拦截所有的路径"-->
+            <!--<mvc:mapping path="/**"/>-->
+            <mvc:mapping path="/interceptor/usual1"/>
+            <!--配置白名单,一般都配置登录页或者首页-->
+            <mvc:exclude-mapping path="/interceptor/toLogin"/>
+            <!--配置以上拦截路径，由哪个拦截器进行拦截-->
+            <bean class="cn.lhy.springMVC.interceptor.Interceptor1"></bean>
+        </mvc:interceptor>
+        <!--配置第二个拦截器-->
+        <mvc:interceptor>
+            <mvc:mapping path="/interceptor/usual1"/>
+            <mvc:exclude-mapping path="/interceptor/toLogin"/>
+            <bean class="cn.lhy.springMVC.interceptor.Interceptor2"></bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+    
+    <!--配置异常处理，这里配置了，就不用再写异常类了-->
+    <!--如果写了异常类，这里就不用再写了-->
+    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <!--配置注入到请求域里面的异常对象的key，注入对象为exception-->
+        <property name="exceptionAttribute" value="exception"></property>
+        <property name="exceptionMappings">
+            <props>
+                <!--key是异常，error是页面，和控制层返回的字符串一样的写法-->
+                <prop key="java.lang.ArithmeticException">exceptionHandle/error</prop>
+                <prop key="java.lang.RuntimeException">exceptionHandle/error</prop>
+            </props>
+        </property>
+    </bean>
+</beans>
