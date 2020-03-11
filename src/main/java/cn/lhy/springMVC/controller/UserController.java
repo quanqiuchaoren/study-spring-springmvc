@@ -31,6 +31,7 @@ public class UserController extends BaseController{
 
     /**
      *  test git
+     *  test git commit part
      * @return
      */
     @RequestMapping("showPrepare")
