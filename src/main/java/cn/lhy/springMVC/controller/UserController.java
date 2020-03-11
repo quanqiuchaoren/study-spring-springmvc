@@ -30,7 +30,7 @@ public class UserController extends BaseController{
     }
 
     /**
-     * test git:add
+     *  test git
      * @return
      */
     @RequestMapping("showPrepare")
