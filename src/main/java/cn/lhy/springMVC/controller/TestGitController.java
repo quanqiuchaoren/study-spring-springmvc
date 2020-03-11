@@ -13,4 +13,8 @@ public class TestGitController {
      * merge into current test from master to feature_x
      */
 
+    /**
+     * test2:merge into current from master to feature_x
+     */
+
 }
