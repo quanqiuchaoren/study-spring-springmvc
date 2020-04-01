@@ -124,7 +124,7 @@
         <dependency>
             <groupId>com.mchange</groupId>
             <artifactId>c3p0</artifactId>
-            <version>0.9.5.2</version>
+            <version>0.9.5.4</version>
         </dependency>
         <!-- 如果要在SpringMVC框架中使用JSR-303数据校验：需要添加以下依赖 -->
         <dependency>
